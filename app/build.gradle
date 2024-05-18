@@ -30,7 +30,8 @@ android {
 
 dependencies {
     implementation project(path: ":Database")
-    implementation 'com.github.muhzubairali:utils:1.0.0'
+    implementation libs.utils
+    implementation libs.gson
     implementation libs.appcompat
     implementation libs.material
     implementation libs.activity

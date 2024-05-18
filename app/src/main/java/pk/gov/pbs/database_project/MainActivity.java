@@ -10,6 +10,8 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.gson.GsonBuilder;
+
 import java.util.List;
 import java.util.Map;
 
@@ -58,6 +60,9 @@ public class MainActivity extends AppCompatActivity {
         long ts = dbInstance.queryWith("select min(unix_age) from TestModel", Cursor::getLong);
 
         List<TestModelMultiPK> testModelMultiPKS = dbInstance.query(TestModelMultiPK.class);
+        String json = new GsonBuilder().setPrettyPrinting().create().toJson(testModelMultiPKS);
+        Log.d(TAG, "test: " + json);
+
         int j = joinedRes.size();
         int i = res.size();
     }

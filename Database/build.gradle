@@ -49,14 +49,7 @@ publishing {
 }
 
 dependencies {
-    implementation 'com.github.muhzubairali:utils:1.0.0'
-
-    implementation 'androidx.annotation:annotation:1.8.0'
-    implementation 'com.google.code.gson:gson:2.10.1'
-
-    implementation libs.appcompat
-    implementation libs.material
-    testImplementation libs.junit
-    androidTestImplementation libs.ext.junit
-    androidTestImplementation libs.espresso.core
+    implementation libs.utils
+    implementation libs.annotation
+    implementation libs.gson
 }
