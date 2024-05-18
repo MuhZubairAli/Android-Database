@@ -426,9 +426,7 @@ public abstract class ModelBasedDatabaseHelper extends SQLiteOpenHelper {
             do {
                 try {
                     result.add(extractObjectFromCursor(outputType, c));
-                } catch (IllegalAccessException e) {
-                    ExceptionReporter.handle(e);
-                } catch (InstantiationException e) {
+                } catch (IllegalAccessException | InstantiationException e) {
                     ExceptionReporter.handle(e);
                 }
             } while(c.moveToNext());
@@ -516,9 +514,7 @@ public abstract class ModelBasedDatabaseHelper extends SQLiteOpenHelper {
         if (c.moveToFirst()){
             try {
                 result = extractObjectFromCursor(outputType, c);
-            } catch (IllegalAccessException e) {
-                ExceptionReporter.handle(e);
-            } catch (InstantiationException e) {
+            } catch (IllegalAccessException | InstantiationException e) {
                 ExceptionReporter.handle(e);
             }
         }
@@ -538,8 +534,12 @@ public abstract class ModelBasedDatabaseHelper extends SQLiteOpenHelper {
         if (c.moveToFirst()){
             do {
                 Map<String, String> row = new HashMap<>();
-                for (String col : c.getColumnNames())
-                    row.put(col, c.getString(c.getColumnIndex(col)));
+                for (String col : c.getColumnNames()) {
+                    int colIndex = c.getColumnIndex(col);
+                    if (colIndex == -1)
+                        continue;
+                    row.put(col, c.getString(colIndex));
+                }
                 result.add(row);
             } while(c.moveToNext());
         }
@@ -586,8 +586,12 @@ public abstract class ModelBasedDatabaseHelper extends SQLiteOpenHelper {
             result.add(c.getColumnNames());
             do {
                 String[] row = new String[c.getColumnCount()];
-                for (int i = 0; i < c.getColumnCount(); i++)
-                    row[i] = c.getString(c.getColumnIndex(result.get(0)[i]));
+                for (int i = 0; i < c.getColumnCount(); i++) {
+                    int colIndex = c.getColumnIndex(result.get(0)[i]);
+                    if (colIndex == -1)
+                        continue;
+                    row[i] = c.getString(colIndex);
+                }
                 result.add(row);
             } while(c.moveToNext());
         }
@@ -762,7 +766,10 @@ public abstract class ModelBasedDatabaseHelper extends SQLiteOpenHelper {
                 String[] row = new String[c.getColumnCount()];
                 int keyIndex = c.getColumnIndex(mapKey);
                 for (int i = 0; i < c.getColumnCount(); i++) {
-                    row[i] = c.getString(c.getColumnIndex(result.get("columns")[i]));
+                    int colIndex = c.getColumnIndex(result.get("columns")[i]);
+                    if (colIndex == -1)
+                        continue;
+                    row[i] = c.getString(colIndex);
                 }
                 result.put(c.getString(keyIndex), row);
             } while(c.moveToNext());

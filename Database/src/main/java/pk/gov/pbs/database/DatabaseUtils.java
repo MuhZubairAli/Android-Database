@@ -96,8 +96,12 @@ public class DatabaseUtils {
             result.add(cursor.getColumnNames());
             do {
                 String[] row = new String[cursor.getColumnCount()];
-                for (int i = 0; i < cursor.getColumnCount(); i++)
-                    row[i] = cursor.getString(cursor.getColumnIndex(result.get(0)[i]));
+                for (int i = 0; i < cursor.getColumnCount(); i++) {
+                    int colIndex = cursor.getColumnIndex(result.get(0)[i]);
+                    if (colIndex == -1)
+                        continue;
+                    row[i] = cursor.getString(colIndex);
+                }
                 result.add(row);
             } while(cursor.moveToNext());
         }
@@ -125,7 +129,10 @@ public class DatabaseUtils {
     public static HashMap<String,String> extractMapFromCursor(Cursor c) {
         HashMap<String,String> result = new HashMap<>();
         for (String column : c.getColumnNames()){
-            result.put(column, c.getString(c.getColumnIndex(column)));
+            int colIndex = c.getColumnIndex(column);
+            if (colIndex == -1)
+                continue;
+            result.put(column, c.getString(colIndex));
         }
         return result;
     }
@@ -134,7 +141,8 @@ public class DatabaseUtils {
         T o = type.newInstance();
         for (Field f : getAllFields(type, includePrivateFields)){
             if (includePrivateFields || !Modifier.isPrivate(f.getModifiers())) {
-                if (c.getColumnIndex(f.getName()) == -1)
+                int columnIndex = c.getColumnIndex(f.getName());
+                if (columnIndex == -1)
                     continue;
 
                 if (!f.isAccessible())
@@ -147,64 +155,64 @@ public class DatabaseUtils {
                     case "Character[]":
                     case "CharSequence":
                     case "String":
-                        f.set(o, c.getString(c.getColumnIndex(f.getName())));
+                        f.set(o, c.getString(columnIndex));
                         break;
                     case "int":
-                        f.set(o, c.getInt(c.getColumnIndex(f.getName())));
+                        f.set(o, c.getInt(columnIndex));
                         break;
                     case "Integer":
-                        f.set(o, c.isNull(c.getColumnIndex(f.getName())) ? null :
-                                c.getInt(c.getColumnIndex(f.getName()))
+                        f.set(o, c.isNull(columnIndex) ? null :
+                                c.getInt(columnIndex)
                         );
                         break;
                     case "long":
-                        f.set(o, c.getLong(c.getColumnIndex(f.getName())));
+                        f.set(o, c.getLong(columnIndex));
                         break;
                     case "Long":
-                        f.set(o, c.isNull(c.getColumnIndex(f.getName())) ? null :
-                                c.getLong(c.getColumnIndex(f.getName()))
+                        f.set(o, c.isNull(columnIndex) ? null :
+                                c.getLong(columnIndex)
                         );
                         break;
                     case "double":
-                        f.set(o, c.getDouble(c.getColumnIndex(f.getName())));
+                        f.set(o, c.getDouble(columnIndex));
                         break;
                     case "Double":
-                        f.set(o, c.isNull(c.getColumnIndex(f.getName())) ? null :
-                                c.getDouble(c.getColumnIndex(f.getName()))
+                        f.set(o, c.isNull(columnIndex) ? null :
+                                c.getDouble(columnIndex)
                         );
                         break;
                     case "boolean":
-                        f.set(o, c.getInt(c.getColumnIndex(f.getName())) == 1);
+                        f.set(o, c.getInt(columnIndex) == 1);
                         break;
                     case "Boolean":
-                        f.set(o, c.isNull(c.getColumnIndex(f.getName())) ? null :
-                                c.getInt(c.getColumnIndex(f.getName())) == 1
+                        f.set(o, c.isNull(columnIndex) ? null :
+                                c.getInt(columnIndex) == 1
                         );
                         break;
                     case "float":
-                        f.set(o, c.getFloat(c.getColumnIndex(f.getName())));
+                        f.set(o, c.getFloat(columnIndex));
                         break;
                     case "Float":
-                        f.set(o, c.isNull(c.getColumnIndex(f.getName())) ? null :
-                                c.getFloat(c.getColumnIndex(f.getName()))
+                        f.set(o, c.isNull(columnIndex) ? null :
+                                c.getFloat(columnIndex)
                         );
                         break;
                     case "byte":
                     case "short":
-                        f.set(o, c.getShort(c.getColumnIndex(f.getName())));
+                        f.set(o, c.getShort(columnIndex));
                         break;
                     case "Byte":
                     case "Short":
-                        f.set(o, c.isNull(c.getColumnIndex(f.getName())) ? null :
-                                c.getShort(c.getColumnIndex(f.getName()))
+                        f.set(o, c.isNull(columnIndex) ? null :
+                                c.getShort(columnIndex)
                         );
                         break;
                     case "byte[]":
-                        f.set(o, c.getBlob(c.getColumnIndex(f.getName())));
+                        f.set(o, c.getBlob(columnIndex));
                         break;
                     case "Byte[]":
-                        f.set(o, c.isNull(c.getColumnIndex(f.getName())) ? null :
-                                c.getBlob(c.getColumnIndex(f.getName()))
+                        f.set(o, c.isNull(columnIndex) ? null :
+                                c.getBlob(columnIndex)
                         );
                         break;
                 }
@@ -213,7 +221,10 @@ public class DatabaseUtils {
         return o;
     }
 
-    public static <T> T extractFieldFromCursor(Class<T> type, Cursor c, Integer columnIndex) throws ClassCastException {
+    public static <T> T extractFieldFromCursor(Class<T> type, Cursor c, Integer columnIndex) throws ColumnNotFound, ClassCastException {
+        if (columnIndex == -1)
+            throw new ColumnNotFound("Specified column Index '"+columnIndex+"' does not exists in cursor", c);
+
         T o = null;
         switch (type.getSimpleName()) {
             case "char":
