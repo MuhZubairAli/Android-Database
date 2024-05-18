@@ -12,8 +12,8 @@ It makes use of the following Annotations
 - Table(name = "", version = 1): for both local database and TSQL
 - SerializedName(value="") for both local database and TSQL (This annotation is from GSON library for setting different name)
 
-## Support for ModelBasedFactory
-This module also supports ModelBasedFactory Design Pattern for Database with inbuilt ExecutorService and all necessary helper functions for CRUD operations.
+## Support for ModelBasedRepository
+This module also supports ModelBasedRepository for Database with inbuilt ExecutorService for computationally expensive database operations and all necessary convenience methods for CRUD operations.
 
 ### Note
 Multiple unique keys can be applied with different indexes. TSQL query for composite Primary Key works as expected with default ASC order for each column. But SQLite gives errors on the composite primary key.
