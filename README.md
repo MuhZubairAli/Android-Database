@@ -40,14 +40,26 @@ In order to use this library in you android application follow following steps
   9. Click Generate token.
 
 ### Step 2: Add maven repository for dependency downloads
-Depending on your gradle version add repository for all projects, from gradle 7.3.3 add a repository as follow
+Depending on your gradle version add repository for all projects, from gradle 7.3.3 add a repository as follows
+add maven repository in *settings.gradle* file
 
 ```
-maven {
-    url uri('https://maven.pkg.github.com/MuhZubairAli/*')
-    credentials {
-        username 'YourGithubUsername'
-        password 'PersonalAccessToken'
+pluginManagement{
+    //...
+}
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+        //...
+        maven {
+            url uri('https://maven.pkg.github.com/MuhZubairAli/*')
+            credentials {
+                username 'YourGithubUsername'
+                password 'PersonalAccessToken'
+            }
+        }
     }
 }
 ```
